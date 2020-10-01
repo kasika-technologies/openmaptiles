@@ -8,7 +8,8 @@ SELECT NULL::bigint        AS osm_id,
        NULL::text          AS leisure,
        NULL::text          AS tourism,
        NULL::text          AS place,
-       NULL::text          AS waterway
+       NULL::text          AS waterway,
+       scalerank
 FROM ne_50m_urban_areas
 WHERE scalerank <= 2
     );
@@ -23,7 +24,8 @@ SELECT NULL::bigint        AS osm_id,
        NULL::text          AS leisure,
        NULL::text          AS tourism,
        NULL::text          AS place,
-       NULL::text          AS waterway
+       NULL::text          AS waterway,
+       scalerank
 FROM ne_50m_urban_areas
     );
 
@@ -37,7 +39,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen7
     );
 
@@ -51,7 +54,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen6
     );
 
@@ -65,7 +69,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen5
     );
 
@@ -79,7 +84,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen4
     );
 
@@ -93,7 +99,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen3
     );
 
@@ -107,7 +114,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen2
     );
 
@@ -121,7 +129,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon_gen1
     );
 
@@ -135,7 +144,8 @@ SELECT osm_id,
        leisure,
        tourism,
        place,
-       waterway
+       waterway,
+       NULL::int as scalerank
 FROM osm_landuse_polygon
     );
 
@@ -214,6 +224,4 @@ FROM (
          WHERE zoom_level >= 14
      ) AS zoom_levels
 WHERE geometry && bbox;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

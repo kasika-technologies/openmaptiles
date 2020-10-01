@@ -8,16 +8,15 @@ CREATE OR REPLACE FUNCTION layer_transportation_name(bbox geometry, zoom_level i
                 geometry   geometry,
                 name       text,
                 name_en    text,
-                name_de    text,
                 tags       hstore,
                 ref        text,
                 ref_length int,
                 network    text,
                 class      text,
                 subclass   text,
-                layer      int,
-                level      int,
-                indoor     int
+                layer      INT,
+                level      INT,
+                indoor     INT
             )
 AS
 $$
@@ -25,25 +24,25 @@ SELECT osm_id,
        geometry,
        NULLIF(name, '')                             AS name,
        COALESCE(NULLIF(name_en, ''), name)          AS name_en,
-       COALESCE(NULLIF(name_de, ''), name, name_en) AS name_de,
        tags,
        NULLIF(ref, ''),
        NULLIF(LENGTH(ref), 0)                       AS ref_length,
        --TODO: The road network of the road is not yet implemented
-       CASE
-           WHEN network IS NOT NULL
-               THEN network::text
-           WHEN length(coalesce(ref, '')) > 0
-               THEN 'road'
-           END                                      AS network,
+       case
+           when network is not null
+               then network::text
+           when length(coalesce(ref, '')) > 0
+               then 'road'
+           end                                      as network,
        highway_class(highway, '', construction)     AS class,
        CASE
            WHEN highway IS NOT NULL AND highway_class(highway, '', construction) = 'path'
                THEN highway
+           ELSE NULL
            END                                      AS subclass,
        NULLIF(layer, 0)                             AS layer,
        "level",
-       CASE WHEN indoor = TRUE THEN 1 END           AS indoor
+       CASE WHEN indoor = TRUE THEN 1 ELSE NULL END as indoor
 FROM (
 
          -- etldoc: osm_transportation_name_linestring_gen4 ->  layer_transportation_name:z6
@@ -89,7 +88,6 @@ FROM (
                 osm_id,
                 name,
                 name_en,
-                name_de,
                 "tags",
                 ref,
                 highway,
@@ -111,7 +109,6 @@ FROM (
                 osm_id,
                 name,
                 name_en,
-                name_de,
                 "tags",
                 ref,
                 highway,
@@ -132,7 +129,6 @@ FROM (
                 osm_id,
                 name,
                 name_en,
-                name_de,
                 "tags",
                 ref,
                 highway,
@@ -147,6 +143,4 @@ FROM (
      ) AS zoom_levels
 WHERE geometry && bbox
 ORDER BY z_order ASC;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

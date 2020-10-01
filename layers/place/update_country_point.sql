@@ -7,7 +7,7 @@ ALTER TABLE osm_country_point
 -- etldoc: ne_10m_admin_0_countries   -> osm_country_point
 -- etldoc: osm_country_point          -> osm_country_point
 
-CREATE OR REPLACE FUNCTION update_osm_country_point() RETURNS void AS
+CREATE OR REPLACE FUNCTION update_osm_country_point() RETURNS VOID AS
 $$
 BEGIN
 
@@ -79,7 +79,7 @@ BEGIN
 
     UPDATE osm_country_point
     SET tags = update_tags(tags, geometry)
-    WHERE COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL;
+    WHERE COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL;
 
 END;
 $$ LANGUAGE plpgsql;
@@ -95,28 +95,28 @@ CREATE SCHEMA IF NOT EXISTS place_country;
 
 CREATE TABLE IF NOT EXISTS place_country.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION place_country.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO place_country.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION place_country.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE LOG 'Refresh place_country rank';
     PERFORM update_osm_country_point();
-    -- noinspection SqlWithoutWhere
     DELETE FROM place_country.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag
     AFTER INSERT OR UPDATE OR DELETE

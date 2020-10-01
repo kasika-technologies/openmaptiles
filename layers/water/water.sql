@@ -1,22 +1,23 @@
-CREATE OR REPLACE FUNCTION water_class(waterway text) RETURNS text AS
+CREATE OR REPLACE FUNCTION water_class(waterway TEXT) RETURNS TEXT AS
 $$
 SELECT CASE
-           %%FIELD_MAPPING: class %%
+           WHEN waterway = '' THEN 'lake'
+           WHEN waterway = 'lake' THEN 'lake'
+           WHEN waterway = 'dock' THEN 'dock'
            ELSE 'river'
            END;
-$$ LANGUAGE SQL IMMUTABLE
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;
 
 
-CREATE OR REPLACE FUNCTION waterway_brunnel(is_bridge bool, is_tunnel bool) RETURNS text AS
+CREATE OR REPLACE FUNCTION waterway_brunnel(is_bridge BOOL, is_tunnel BOOL) RETURNS TEXT AS
 $$
 SELECT CASE
            WHEN is_bridge THEN 'bridge'
            WHEN is_tunnel THEN 'tunnel'
+           ELSE NULL
            END;
 $$ LANGUAGE SQL IMMUTABLE
-                STRICT
-                PARALLEL SAFE;
+                STRICT;
 
 
 
@@ -385,6 +386,4 @@ FROM (
          WHERE zoom_level >= 14
      ) AS zoom_levels
 WHERE geometry && bbox;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

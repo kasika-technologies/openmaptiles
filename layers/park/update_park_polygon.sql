@@ -16,7 +16,6 @@ ALTER TABLE osm_park_polygon_gen7
     ADD COLUMN IF NOT EXISTS geometry_point geometry;
 ALTER TABLE osm_park_polygon_gen8
     ADD COLUMN IF NOT EXISTS geometry_point geometry;
-
 DROP TRIGGER IF EXISTS update_row ON osm_park_polygon;
 DROP TRIGGER IF EXISTS update_row ON osm_park_polygon_gen1;
 DROP TRIGGER IF EXISTS update_row ON osm_park_polygon_gen2;
@@ -36,44 +35,35 @@ DROP TRIGGER IF EXISTS update_row ON osm_park_polygon_gen8;
 -- etldoc:  osm_park_polygon_gen6 ->  osm_park_polygon_gen6
 -- etldoc:  osm_park_polygon_gen7 ->  osm_park_polygon_gen7
 -- etldoc:  osm_park_polygon_gen8 ->  osm_park_polygon_gen8
-CREATE OR REPLACE FUNCTION update_osm_park_polygon() RETURNS void AS
+CREATE OR REPLACE FUNCTION update_osm_park_polygon() RETURNS VOID AS
 $$
 BEGIN
     UPDATE osm_park_polygon
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen1
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen2
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen3
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen4
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen5
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen6
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen7
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
     UPDATE osm_park_polygon_gen8
-    SET tags           = update_tags(tags, geometry),
-        geometry_point = st_centroid(geometry);
+    SET geometry_point = st_centroid(geometry);
 
 END;
 $$ LANGUAGE plpgsql;
@@ -91,15 +81,15 @@ CREATE INDEX IF NOT EXISTS osm_park_polygon_gen8_point_geom_idx ON osm_park_poly
 
 
 CREATE OR REPLACE FUNCTION update_osm_park_polygon_row()
-    RETURNS trigger
+    RETURNS TRIGGER
 AS
-$$
+$BODY$
 BEGIN
-    NEW.tags = update_tags(NEW.tags, NEW.geometry);
     NEW.geometry_point = st_centroid(NEW.geometry);
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    LANGUAGE plpgsql;
 
 CREATE TRIGGER update_row
     BEFORE INSERT OR UPDATE
@@ -154,3 +144,6 @@ CREATE TRIGGER update_row
     ON osm_park_polygon_gen8
     FOR EACH ROW
 EXECUTE PROCEDURE update_osm_park_polygon_row();
+
+
+

@@ -10,14 +10,9 @@ CREATE OR REPLACE FUNCTION layer_housenumber(bbox geometry, zoom_level integer)
             )
 AS
 $$
-SELECT
     -- etldoc: osm_housenumber_point -> layer_housenumber:z14_
-    osm_id,
-    geometry,
-    housenumber
+SELECT osm_id, geometry, housenumber
 FROM osm_housenumber_point
 WHERE zoom_level >= 14
   AND geometry && bbox;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

@@ -3,10 +3,10 @@ DROP TRIGGER IF EXISTS trigger_refresh ON water_name_marine.updates;
 
 CREATE EXTENSION IF NOT EXISTS unaccent;
 
-CREATE OR REPLACE FUNCTION update_osm_marine_point() RETURNS void AS
+CREATE OR REPLACE FUNCTION update_osm_marine_point() RETURNS VOID AS
 $$
 BEGIN
-    -- etldoc: osm_marine_point              -> osm_marine_point
+    -- etldoc: osm_marine_point          -> osm_marine_point
     UPDATE osm_marine_point AS osm SET "rank" = NULL WHERE "rank" IS NOT NULL;
 
     -- etldoc: ne_10m_geography_marine_polys -> osm_marine_point
@@ -17,8 +17,8 @@ BEGIN
         FROM ne_10m_geography_marine_polys AS ne,
              osm_marine_point AS osm
         WHERE trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) ILIKE osm.name
-           OR trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) ILIKE osm.tags->'name:en'
-           OR trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) ILIKE osm.tags->'name:es'
+           OR trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) ILIKE osm.tags -> 'name:en'
+--            OR trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) ILIKE osm.tags -> 'name:es'
            OR osm.name ILIKE trim(regexp_replace(ne.name, '\\s+', ' ', 'g')) || ' %'
     )
     UPDATE osm_marine_point AS osm
@@ -26,9 +26,9 @@ BEGIN
     FROM important_marine_point AS ne
     WHERE osm.osm_id = ne.osm_id;
 
-    UPDATE osm_marine_point
-    SET tags = update_tags(tags, geometry)
-    WHERE COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL;
+--     UPDATE osm_marine_point
+--     SET tags = update_tags(tags, geometry)
+--     WHERE COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL;
 
 END;
 $$ LANGUAGE plpgsql;
@@ -42,28 +42,28 @@ CREATE SCHEMA IF NOT EXISTS water_name_marine;
 
 CREATE TABLE IF NOT EXISTS water_name_marine.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION water_name_marine.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO water_name_marine.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION water_name_marine.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE LOG 'Refresh water_name_marine rank';
     PERFORM update_osm_marine_point();
-    -- noinspection SqlWithoutWhere
     DELETE FROM water_name_marine.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag
     AFTER INSERT OR UPDATE OR DELETE

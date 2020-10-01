@@ -9,14 +9,21 @@
 --);
 --CREATE INDEX IF NOT EXISTS landcover_grouped_gen2_geometry_idx ON landcover_grouped_gen2 USING gist(geometry);
 
-CREATE OR REPLACE FUNCTION landcover_class(subclass varchar) RETURNS text AS
+CREATE OR REPLACE FUNCTION landcover_class(subclass VARCHAR) RETURNS TEXT AS
 $$
 SELECT CASE
-           %%FIELD_MAPPING: class %%
+           WHEN subclass IN ('farmland', 'farm', 'orchard', 'vineyard', 'plant_nursery') THEN 'farmland'
+           WHEN subclass IN ('glacier', 'ice_shelf') THEN 'ice'
+           WHEN subclass IN ('wood', 'forest') THEN 'wood'
+           WHEN subclass IN ('bare_rock', 'scree') THEN 'rock'
+           WHEN subclass IN ('fell', 'grassland', 'heath', 'scrub', 'tundra', 'grass', 'meadow', 'allotments',
+                             'park', 'village_green', 'recreation_ground', 'garden', 'golf_course') THEN 'grass'
+           WHEN subclass IN ('wetland', 'bog', 'swamp', 'wet_meadow', 'marsh', 'reedbed',
+                             'saltern', 'tidalflat', 'saltmarsh', 'mangrove') THEN 'wetland'
+           WHEN subclass IN ('beach', 'sand', 'dune') THEN 'sand'
+           ELSE NULL
            END;
-$$ LANGUAGE SQL IMMUTABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;
 
 -- etldoc: ne_110m_glaciated_areas ->  landcover_z0
 CREATE OR REPLACE VIEW landcover_z0 AS
@@ -186,6 +193,4 @@ FROM (
          WHERE zoom_level >= 14
            AND geometry && bbox
      ) AS zoom_levels;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

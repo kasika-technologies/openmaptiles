@@ -9,14 +9,14 @@ DO
 $$
     BEGIN
         IF NOT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'route_network_type') THEN
-            CREATE TYPE route_network_type AS enum (
-                'us-interstate', 'us-highway', 'us-state',
-                'ca-transcanada',
-                'gb-motorway', 'gb-trunk'
+            CREATE TYPE route_network_type AS ENUM(--                 'us-interstate', 'us-highway', 'us-state',
+--                 'ca-transcanada',
+--                 'gb-motorway', 'gb-trunk'
                 );
         END IF;
     END
-$$;
+$$
+;
 
 DO
 $$
@@ -28,4 +28,5 @@ $$
             WHEN duplicate_column THEN RAISE NOTICE 'column network_type already exists in network_type.';
         END;
     END;
-$$;
+$$
+;

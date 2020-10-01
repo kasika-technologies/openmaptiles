@@ -41,9 +41,9 @@ FROM (
          WHERE (highway IN ('motorway', 'trunk', 'primary') OR
                 highway = 'construction' AND construction IN ('motorway', 'trunk', 'primary'))
            AND ST_IsValid(geometry)
-         GROUP BY highway, construction
+         group by highway, construction
      ) AS highway_union
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_geometry_idx
     ON osm_transportation_merge_linestring USING gist (geometry);
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_highway_partial_idx
@@ -57,7 +57,7 @@ SELECT ST_Simplify(geometry, 120) AS geometry, osm_id, highway, construction, z_
 FROM osm_transportation_merge_linestring
 WHERE highway IN ('motorway', 'trunk', 'primary')
    OR highway = 'construction' AND construction IN ('motorway', 'trunk', 'primary')
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen3_geometry_idx
     ON osm_transportation_merge_linestring_gen3 USING gist (geometry);
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen3_highway_partial_idx
@@ -72,7 +72,7 @@ FROM osm_transportation_merge_linestring_gen3
 WHERE (highway IN ('motorway', 'trunk', 'primary') OR
        highway = 'construction' AND construction IN ('motorway', 'trunk', 'primary'))
   AND ST_Length(geometry) > 50
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen4_geometry_idx
     ON osm_transportation_merge_linestring_gen4 USING gist (geometry);
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen4_highway_partial_idx
@@ -86,7 +86,7 @@ SELECT ST_Simplify(geometry, 500) AS geometry, osm_id, highway, construction, z_
 FROM osm_transportation_merge_linestring_gen4
 WHERE (highway IN ('motorway', 'trunk') OR highway = 'construction' AND construction IN ('motorway', 'trunk'))
   AND ST_Length(geometry) > 100
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen5_geometry_idx
     ON osm_transportation_merge_linestring_gen5 USING gist (geometry);
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen5_highway_partial_idx
@@ -100,7 +100,7 @@ SELECT ST_Simplify(geometry, 1000) AS geometry, osm_id, highway, construction, z
 FROM osm_transportation_merge_linestring_gen5
 WHERE (highway IN ('motorway', 'trunk') OR highway = 'construction' AND construction IN ('motorway', 'trunk'))
   AND ST_Length(geometry) > 500
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen6_geometry_idx
     ON osm_transportation_merge_linestring_gen6 USING gist (geometry);
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen6_highway_partial_idx
@@ -114,7 +114,7 @@ SELECT ST_Simplify(geometry, 2000) AS geometry, osm_id, highway, construction, z
 FROM osm_transportation_merge_linestring_gen6
 WHERE (highway = 'motorway' OR highway = 'construction' AND construction = 'motorway')
   AND ST_Length(geometry) > 1000
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */;
+    );
 CREATE INDEX IF NOT EXISTS osm_transportation_merge_linestring_gen7_geometry_idx
     ON osm_transportation_merge_linestring_gen7 USING gist (geometry);
 
@@ -125,20 +125,20 @@ CREATE SCHEMA IF NOT EXISTS transportation;
 
 CREATE TABLE IF NOT EXISTS transportation.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION transportation.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO transportation.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION transportation.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE NOTICE 'Refresh transportation';
     REFRESH MATERIALIZED VIEW osm_transportation_merge_linestring;
@@ -147,11 +147,11 @@ BEGIN
     REFRESH MATERIALIZED VIEW osm_transportation_merge_linestring_gen5;
     REFRESH MATERIALIZED VIEW osm_transportation_merge_linestring_gen6;
     REFRESH MATERIALIZED VIEW osm_transportation_merge_linestring_gen7;
-    -- noinspection SqlWithoutWhere
     DELETE FROM transportation.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag_transportation
     AFTER INSERT OR UPDATE OR DELETE

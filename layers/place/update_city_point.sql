@@ -3,7 +3,7 @@ DROP TRIGGER IF EXISTS trigger_refresh ON place_city.updates;
 
 CREATE EXTENSION IF NOT EXISTS unaccent;
 
-CREATE OR REPLACE FUNCTION update_osm_city_point() RETURNS void AS
+CREATE OR REPLACE FUNCTION update_osm_city_point() RETURNS VOID AS
 $$
 BEGIN
 
@@ -19,7 +19,7 @@ BEGIN
         FROM ne_10m_populated_places AS ne,
              osm_city_point AS osm
         WHERE (
-                (osm.tags ? 'wikidata' AND osm.tags->'wikidata' = ne.wikidataid) OR
+                (osm.tags ? 'wikidata' AND osm.tags -> 'wikidata' = ne.wikidataid) OR
                 ne.name ILIKE osm.name OR
                 ne.name ILIKE osm.name_en OR
                 ne.namealt ILIKE osm.name OR
@@ -42,9 +42,9 @@ BEGIN
     FROM important_city_point AS ne
     WHERE osm.osm_id = ne.osm_id;
 
-    UPDATE osm_city_point
-    SET tags = update_tags(tags, geometry)
-    WHERE COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL;
+    --     UPDATE osm_city_point
+--     SET tags = update_tags(tags, geometry)
+--     WHERE COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL;
 
 END;
 $$ LANGUAGE plpgsql;
@@ -59,28 +59,28 @@ CREATE SCHEMA IF NOT EXISTS place_city;
 
 CREATE TABLE IF NOT EXISTS place_city.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION place_city.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO place_city.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION place_city.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE LOG 'Refresh place_city rank';
     PERFORM update_osm_city_point();
-    -- noinspection SqlWithoutWhere
     DELETE FROM place_city.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag
     AFTER INSERT OR UPDATE OR DELETE

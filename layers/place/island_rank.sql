@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION island_rank(area real) RETURNS int AS
+CREATE OR REPLACE FUNCTION island_rank(area REAL) RETURNS INT AS
 $$
 SELECT CASE
            WHEN area < 10000000 THEN 6
@@ -8,5 +8,4 @@ SELECT CASE
            ELSE 7
            END;
 $$ LANGUAGE SQL IMMUTABLE
-                STRICT
-                PARALLEL SAFE;
+                STRICT;

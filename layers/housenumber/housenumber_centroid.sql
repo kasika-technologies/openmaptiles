@@ -2,7 +2,7 @@ DROP TRIGGER IF EXISTS trigger_flag ON osm_housenumber_point;
 DROP TRIGGER IF EXISTS trigger_refresh ON housenumber.updates;
 
 -- etldoc: osm_housenumber_point -> osm_housenumber_point
-CREATE OR REPLACE FUNCTION convert_housenumber_point() RETURNS void AS
+CREATE OR REPLACE FUNCTION convert_housenumber_point() RETURNS VOID AS
 $$
 BEGIN
     UPDATE osm_housenumber_point
@@ -24,28 +24,28 @@ CREATE SCHEMA IF NOT EXISTS housenumber;
 
 CREATE TABLE IF NOT EXISTS housenumber.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION housenumber.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO housenumber.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION housenumber.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE LOG 'Refresh housenumber';
     PERFORM convert_housenumber_point();
-    -- noinspection SqlWithoutWhere
     DELETE FROM housenumber.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag
     AFTER INSERT OR UPDATE OR DELETE

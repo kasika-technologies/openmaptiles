@@ -1,215 +1,11 @@
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen1 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen1
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen1 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen1 AS
-(
-SELECT ST_Simplify(geometry, 10) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 10
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen1_idx ON osm_border_linestring_gen1 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen2 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen2
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen2 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen2 AS
-(
-SELECT ST_Simplify(geometry, 20) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 10
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen2_idx ON osm_border_linestring_gen2 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen3 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen3
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen3 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen3 AS
-(
-SELECT ST_Simplify(geometry, 40) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 8
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen3_idx ON osm_border_linestring_gen3 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen4 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen4
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen4 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen4 AS
-(
-SELECT ST_Simplify(geometry, 80) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 6
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen4_idx ON osm_border_linestring_gen4 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen5 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen5
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen5 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen5 AS
-(
-SELECT ST_Simplify(geometry, 160) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 6
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen5_idx ON osm_border_linestring_gen5 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen6 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen6
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen6 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen6 AS
-(
-SELECT ST_Simplify(geometry, 300) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 4
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen6_idx ON osm_border_linestring_gen6 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen7 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen7
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen7 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen7 AS
-(
-SELECT ST_Simplify(geometry, 600) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 4
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen7_idx ON osm_border_linestring_gen7 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen8 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen8
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen8 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen8 AS
-(
-SELECT ST_Simplify(geometry, 1200) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 4
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen8_idx ON osm_border_linestring_gen8 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen9 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen9
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen9 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen9 AS
-(
-SELECT ST_Simplify(geometry, 2400) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 4
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen9_idx ON osm_border_linestring_gen9 USING gist (geometry);
-
--- This statement can be deleted after the border importer image stops creating this object as a table
-DO
-$$
-    BEGIN
-        DROP TABLE IF EXISTS osm_border_linestring_gen10 CASCADE;
-    EXCEPTION
-        WHEN wrong_object_type THEN
-    END;
-$$ LANGUAGE plpgsql;
-
--- etldoc: osm_border_linestring -> osm_border_linestring_gen10
-DROP MATERIALIZED VIEW IF EXISTS osm_border_linestring_gen10 CASCADE;
-CREATE MATERIALIZED VIEW osm_border_linestring_gen10 AS
-(
-SELECT ST_Simplify(geometry, 4800) AS geometry, osm_id, admin_level, dividing_line, disputed, maritime
-FROM osm_border_linestring
-WHERE admin_level <= 2
-    ) /* DELAY_MATERIALIZED_VIEW_CREATION */ ;
-CREATE INDEX IF NOT EXISTS osm_border_linestring_gen10_idx ON osm_border_linestring_gen10 USING gist (geometry);
-
-
-CREATE OR REPLACE FUNCTION edit_name(name varchar) RETURNS text AS
+CREATE OR REPLACE FUNCTION edit_name(name VARCHAR) RETURNS TEXT AS
 $$
 SELECT CASE
-           WHEN POSITION(' at ' IN name) > 0
-               THEN replace(SUBSTRING(name, POSITION(' at ' IN name) + 4), ' ', '')
+           WHEN POSITION(' at ' in name) > 0
+               THEN replace(SUBSTRING(name, POSITION(' at ' in name) + 4), ' ', '')
            ELSE replace(replace(name, ' ', ''), 'Extentof', '')
            END;
-$$ LANGUAGE SQL IMMUTABLE
-                -- STRICT
-                PARALLEL SAFE
-                ;
+$$ LANGUAGE SQL IMMUTABLE;
 
 
 -- etldoc: ne_110m_admin_0_boundary_lines_land  -> boundary_z0
@@ -217,10 +13,10 @@ CREATE OR REPLACE VIEW boundary_z0 AS
 (
 SELECT geometry,
        2                                                                AS admin_level,
-       (CASE WHEN featurecla LIKE 'Disputed%' THEN TRUE ELSE FALSE END) AS disputed,
+       (CASE WHEN featurecla LIKE 'Disputed%' THEN true ELSE false END) AS disputed,
        NULL::text                                                       AS disputed_name,
        NULL::text                                                       AS claimed_by,
-       FALSE                                                            AS maritime
+       false                                                            AS maritime
 FROM ne_110m_admin_0_boundary_lines_land
     );
 
@@ -231,23 +27,23 @@ CREATE OR REPLACE VIEW boundary_z1 AS
 (
 SELECT geometry,
        2                                                                AS admin_level,
-       (CASE WHEN featurecla LIKE 'Disputed%' THEN TRUE ELSE FALSE END) AS disputed,
+       (CASE WHEN featurecla LIKE 'Disputed%' THEN true ELSE false END) AS disputed,
        NULL                                                             AS disputed_name,
        NULL                                                             AS claimed_by,
-       FALSE                                                            AS maritime
+       false                                                            AS maritime
 FROM ne_50m_admin_0_boundary_lines_land
 UNION ALL
 SELECT geometry,
        4     AS admin_level,
-       FALSE AS disputed,
+       false AS disputed,
        NULL  AS disputed_name,
        NULL  AS claimed_by,
-       FALSE AS maritime
+       false AS maritime
 FROM ne_50m_admin_1_states_provinces_lines
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -262,23 +58,23 @@ CREATE OR REPLACE VIEW boundary_z3 AS
 (
 SELECT geometry,
        2                                                                AS admin_level,
-       (CASE WHEN featurecla LIKE 'Disputed%' THEN TRUE ELSE FALSE END) AS disputed,
+       (CASE WHEN featurecla LIKE 'Disputed%' THEN true ELSE false END) AS disputed,
        NULL                                                             AS disputed_name,
        NULL                                                             AS claimed_by,
-       FALSE                                                            AS maritime
+       false                                                            AS maritime
 FROM ne_50m_admin_0_boundary_lines_land
 UNION ALL
 SELECT geometry,
        4     AS admin_level,
-       FALSE AS disputed,
+       false AS disputed,
        NULL  AS disputed_name,
        NULL  AS claimed_by,
-       FALSE AS maritime
+       false AS maritime
 FROM ne_50m_admin_1_states_provinces_lines
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -294,19 +90,19 @@ CREATE OR REPLACE VIEW boundary_z4 AS
 (
 SELECT geometry,
        2                                                                AS admin_level,
-       (CASE WHEN featurecla LIKE 'Disputed%' THEN TRUE ELSE FALSE END) AS disputed,
+       (CASE WHEN featurecla LIKE 'Disputed%' THEN true ELSE false END) AS disputed,
        NULL                                                             AS disputed_name,
        NULL                                                             AS claimed_by,
-       FALSE                                                            AS maritime
+       false                                                            AS maritime
 FROM ne_10m_admin_0_boundary_lines_land
 WHERE featurecla <> 'Lease limit'
 UNION ALL
 SELECT geometry,
        4     AS admin_level,
-       FALSE AS disputed,
+       false AS disputed,
        NULL  AS disputed_name,
        NULL  AS claimed_by,
-       FALSE AS maritime
+       false AS maritime
 FROM ne_10m_admin_1_states_provinces_lines
 WHERE min_zoom <= 5
 UNION ALL
@@ -317,12 +113,12 @@ SELECT geometry,
        NULL AS claimed_by,
        maritime
 FROM osm_border_linestring_gen10
-WHERE maritime = TRUE
+WHERE maritime = true
   AND admin_level <= 2
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -345,7 +141,7 @@ WHERE admin_level <= 4
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -368,7 +164,7 @@ WHERE admin_level <= 4
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -386,12 +182,12 @@ SELECT geometry,
        NULL AS claimed_by,
        maritime
 FROM osm_border_linestring_gen7
-WHERE admin_level <= 6
+WHERE admin_level <= 4
   AND osm_id NOT IN (SELECT DISTINCT osm_id FROM osm_border_disp_linestring_gen7)
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -409,12 +205,12 @@ SELECT geometry,
        NULL AS claimed_by,
        maritime
 FROM osm_border_linestring_gen6
-WHERE admin_level <= 6
+WHERE admin_level <= 4
   AND osm_id NOT IN (SELECT DISTINCT osm_id FROM osm_border_disp_linestring_gen6)
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -437,7 +233,7 @@ WHERE admin_level <= 6
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -460,7 +256,7 @@ WHERE admin_level <= 6
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -483,7 +279,7 @@ WHERE admin_level <= 8
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -505,7 +301,7 @@ WHERE osm_id NOT IN (SELECT DISTINCT osm_id FROM osm_border_disp_linestring_gen2
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -527,7 +323,7 @@ WHERE osm_id NOT IN (SELECT DISTINCT osm_id FROM osm_border_disp_linestring_gen1
 UNION ALL
 SELECT geometry,
        admin_level,
-       TRUE            AS disputed,
+       true            AS disputed,
        edit_name(name) AS disputed_name,
        claimed_by,
        maritime
@@ -628,6 +424,4 @@ FROM (
          WHERE geometry && bbox
            AND zoom_level >= 13
      ) AS zoom_levels;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

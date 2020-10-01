@@ -56,6 +56,4 @@ FROM (
          WHERE zoom_level >= 14
      ) AS zoom_levels
 WHERE geometry && bbox;
-$$ LANGUAGE SQL STABLE
-                -- STRICT
-                PARALLEL SAFE;
+$$ LANGUAGE SQL IMMUTABLE;

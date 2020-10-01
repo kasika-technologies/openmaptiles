@@ -7,7 +7,7 @@ ALTER TABLE osm_state_point
 -- etldoc: ne_10m_admin_1_states_provinces   -> osm_state_point
 -- etldoc: osm_state_point                       -> osm_state_point
 
-CREATE OR REPLACE FUNCTION update_osm_state_point() RETURNS void AS
+CREATE OR REPLACE FUNCTION update_osm_state_point() RETURNS VOID AS
 $$
 BEGIN
 
@@ -42,9 +42,9 @@ BEGIN
 
     DELETE FROM osm_state_point WHERE "rank" IS NULL;
 
-    UPDATE osm_state_point
-    SET tags = update_tags(tags, geometry)
-    WHERE COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL;
+--     UPDATE osm_state_point
+--     SET tags = update_tags(tags, geometry)
+--     WHERE COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL;
 
 END;
 $$ LANGUAGE plpgsql;
@@ -60,28 +60,28 @@ CREATE SCHEMA IF NOT EXISTS place_state;
 
 CREATE TABLE IF NOT EXISTS place_state.updates
 (
-    id serial PRIMARY KEY,
+    id serial primary key,
     t  text,
-    UNIQUE (t)
+    unique (t)
 );
 CREATE OR REPLACE FUNCTION place_state.flag() RETURNS trigger AS
 $$
 BEGIN
     INSERT INTO place_state.updates(t) VALUES ('y') ON CONFLICT(t) DO NOTHING;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$$ language plpgsql;
 
 CREATE OR REPLACE FUNCTION place_state.refresh() RETURNS trigger AS
-$$
+$BODY$
 BEGIN
     RAISE LOG 'Refresh place_state rank';
     PERFORM update_osm_state_point();
-    -- noinspection SqlWithoutWhere
     DELETE FROM place_state.updates;
-    RETURN NULL;
+    RETURN null;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$
+    language plpgsql;
 
 CREATE TRIGGER trigger_flag
     AFTER INSERT OR UPDATE OR DELETE
