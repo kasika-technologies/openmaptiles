@@ -16,7 +16,7 @@ tables:
   # etldoc: imposm3 -> osm_continent_point
   continent_point:
     type: point
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry
@@ -35,7 +35,7 @@ tables:
   # etldoc: imposm3 -> osm_country_point
   country_point:
     type: point
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry
@@ -64,7 +64,7 @@ tables:
   # etldoc: imposm3 -> osm_island_polygon
   island_polygon:
     type: polygon
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry
@@ -86,7 +86,7 @@ tables:
   # etldoc: imposm3 -> osm_island_point
   island_point:
     type: point
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry
@@ -106,7 +106,7 @@ tables:
   # etldoc: imposm3 -> osm_state_point
   state_point:
     type: point
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry
@@ -135,7 +135,7 @@ tables:
   # etldoc: imposm3 -> osm_city_point
   city_point:
     type: point
-    columns:
+    fields:
     - name: osm_id
       type: id
     - name: geometry

@@ -1,4 +1,3 @@
-
 -- etldoc: layer_city[shape=record fillcolor=lightpink, style="rounded,filled",
 -- etldoc:     label="layer_city | <z2_14> z2-z14+" ] ;
 
