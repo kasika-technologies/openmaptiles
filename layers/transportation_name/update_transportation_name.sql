@@ -12,7 +12,6 @@ SELECT
     osm_id,
     name,
     name_en,
-    name_de,
     tags,
     ref,
     highway,
@@ -28,7 +27,6 @@ FROM (
         hl.osm_id,
         CASE WHEN length(hl.name) > 15 THEN osml10n_street_abbrev_all(hl.name) ELSE NULLIF(hl.name, '') END AS "name",
         CASE WHEN length(hl.name_en) > 15 THEN osml10n_street_abbrev_en(hl.name_en) ELSE NULLIF(hl.name_en, '') END AS "name_en",
-        CASE WHEN length(hl.name_de) > 15 THEN osml10n_street_abbrev_de(hl.name_de) ELSE NULLIF(hl.name_de, '') END AS "name_de",
         slice_language_tags(hl.tags) AS tags,
         rm.network_type,
         CASE
@@ -63,7 +61,6 @@ SELECT (ST_Dump(geometry)).geom AS geometry,
        NULL::bigint AS osm_id,
        name,
        name_en,
-       name_de,
        tags || get_basic_names(tags, geometry) AS "tags",
        ref,
        highway,
@@ -78,9 +75,8 @@ FROM (
          SELECT ST_LineMerge(ST_Collect(geometry)) AS geometry,
                 name,
                 name_en,
-                name_de,
                 tags || hstore( -- store results of osml10n_street_abbrev_* above
-                               ARRAY ['name', name, 'name:en', name_en, 'name:de', name_de]) AS tags,
+                               ARRAY ['name', name, 'name:en', name_en]) AS tags,
                 ref,
                 highway,
                 construction,
@@ -91,7 +87,7 @@ FROM (
                 network_type,
                 min(z_order) AS z_order
          FROM osm_transportation_name_network
-         GROUP BY name, name_en, name_de, tags, ref, highway, construction, brunnel, "level", layer, indoor, network_type
+         GROUP BY name, name_en, tags, ref, highway, construction, brunnel, "level", layer, indoor, network_type
      ) AS highway_union
 ;
 CREATE INDEX IF NOT EXISTS osm_transportation_name_linestring_name_ref_idx ON osm_transportation_name_linestring (coalesce(name, ''), coalesce(ref, ''));
@@ -107,7 +103,6 @@ SELECT ST_Simplify(geometry, 50) AS geometry,
        osm_id,
        name,
        name_en,
-       name_de,
        tags,
        ref,
        highway,
@@ -135,7 +130,6 @@ SELECT ST_Simplify(geometry, 120) AS geometry,
        osm_id,
        name,
        name_en,
-       name_de,
        tags,
        ref,
        highway,
@@ -163,7 +157,6 @@ SELECT ST_Simplify(geometry, 200) AS geometry,
        osm_id,
        name,
        name_en,
-       name_de,
        tags,
        ref,
        highway,
@@ -191,7 +184,6 @@ SELECT ST_Simplify(geometry, 500) AS geometry,
        osm_id,
        name,
        name_en,
-       name_de,
        tags,
        ref,
        highway,
@@ -278,7 +270,6 @@ BEGIN
         osm_id,
         name,
         name_en,
-        name_de,
         tags,
         ref,
         highway,
@@ -294,7 +285,6 @@ BEGIN
             hl.osm_id,
             CASE WHEN length(hl.name) > 15 THEN osml10n_street_abbrev_all(hl.name) ELSE NULLIF(hl.name, '') END AS name,
             CASE WHEN length(hl.name_en) > 15 THEN osml10n_street_abbrev_en(hl.name_en) ELSE NULLIF(hl.name_en, '') END AS name_en,
-            CASE WHEN length(hl.name_de) > 15 THEN osml10n_street_abbrev_de(hl.name_de) ELSE NULLIF(hl.name_de, '') END AS name_de,
             slice_language_tags(hl.tags) AS tags,
             rm.network_type,
             CASE
@@ -366,7 +356,6 @@ CREATE TABLE IF NOT EXISTS transportation_name.name_changes
     osm_id bigint,
     name character varying,
     name_en character varying,
-    name_de character varying,
     ref character varying,
     highway character varying,
     construction character varying,
@@ -382,16 +371,16 @@ $$
 BEGIN
     IF (tg_op IN ('DELETE', 'UPDATE'))
     THEN
-        INSERT INTO transportation_name.name_changes(is_old, osm_id, name, name_en, name_de, ref, highway, construction,
+        INSERT INTO transportation_name.name_changes(is_old, osm_id, name, name_en, ref, highway, construction,
                                                      brunnel, level, layer, indoor, network_type)
-        VALUES (TRUE, old.osm_id, old.name, old.name_en, old.name_de, old.ref, old.highway, old.construction,
+        VALUES (TRUE, old.osm_id, old.name, old.name_en, old.ref, old.highway, old.construction,
                 old.brunnel, old.level, old.layer, old.indoor, old.network_type);
     END IF;
     IF (tg_op IN ('UPDATE', 'INSERT'))
     THEN
-        INSERT INTO transportation_name.name_changes(is_old, osm_id, name, name_en, name_de, ref, highway, construction,
+        INSERT INTO transportation_name.name_changes(is_old, osm_id, name, name_en, ref, highway, construction,
                                                      brunnel, level, layer, indoor, network_type)
-        VALUES (FALSE, new.osm_id, new.name, new.name_en, new.name_de, new.ref, new.highway, new.construction,
+        VALUES (FALSE, new.osm_id, new.name, new.name_en, new.ref, new.highway, new.construction,
                 new.brunnel, new.level, new.layer, new.indoor, new.network_type);
     END IF;
     RETURN NULL;
@@ -423,10 +412,9 @@ BEGIN
 
     -- Compact the change history to keep only the first and last version, and then uniq version of row
     CREATE TEMP TABLE name_changes_compact AS
-    SELECT DISTINCT ON (name, name_en, name_de, ref, highway, construction, brunnel, level, layer, indoor, network_type)
+    SELECT DISTINCT ON (name, name_en, ref, highway, construction, brunnel, level, layer, indoor, network_type)
         name,
         name_en,
-        name_de,
         ref,
         highway,
         construction,
@@ -458,7 +446,6 @@ BEGIN
     WHERE coalesce(n.name, '') = coalesce(c.name, '')
       AND coalesce(n.ref, '') = coalesce(c.ref, '')
       AND n.name_en IS NOT DISTINCT FROM c.name_en
-      AND n.name_de IS NOT DISTINCT FROM c.name_de
       AND n.highway IS NOT DISTINCT FROM c.highway
       AND n.construction IS NOT DISTINCT FROM c.construction
       AND n.brunnel IS NOT DISTINCT FROM c.brunnel
@@ -472,7 +459,6 @@ BEGIN
            NULL::bigint AS osm_id,
            name,
            name_en,
-           name_de,
            tags || get_basic_names(tags, geometry) AS tags,
            ref,
            highway,
@@ -487,9 +473,8 @@ BEGIN
         SELECT ST_LineMerge(ST_Collect(n.geometry)) AS geometry,
             n.name,
             n.name_en,
-            n.name_de,
             hstore(string_agg(nullif(slice_language_tags(tags ||
-                                                         hstore(ARRAY ['name', n.name, 'name:en', n.name_en, 'name:de', n.name_de]))::text,
+                                                         hstore(ARRAY ['name', n.name, 'name:en', n.name_en, 'name:de']))::text,
                                      ''), ',')) AS tags,
             n.ref,
             n.highway,
@@ -505,7 +490,6 @@ BEGIN
                  coalesce(n.name, '') = coalesce(c.name, '')
              AND coalesce(n.ref, '') = coalesce(c.ref, '')
              AND n.name_en IS NOT DISTINCT FROM c.name_en
-             AND n.name_de IS NOT DISTINCT FROM c.name_de
              AND n.highway IS NOT DISTINCT FROM c.highway
              AND n.construction IS NOT DISTINCT FROM c.construction
              AND n.brunnel IS NOT DISTINCT FROM c.brunnel
@@ -513,7 +497,7 @@ BEGIN
              AND n.layer IS NOT DISTINCT FROM c.layer
              AND n.indoor IS NOT DISTINCT FROM c.indoor
              AND n.network_type IS NOT DISTINCT FROM c.network_type
-        GROUP BY n.name, n.name_en, n.name_de, n.ref, n.highway, n.construction, n.brunnel, n.level, n.layer, n.indoor, n.network_type
+        GROUP BY n.name, n.name_en, n.ref, n.highway, n.construction, n.brunnel, n.level, n.layer, n.indoor, n.network_type
     ) AS highway_union;
 
     -- REFRESH osm_transportation_name_linestring_gen1
@@ -523,7 +507,6 @@ BEGIN
         coalesce(n.name, n.ref) = c.name_ref
         AND n.name IS NOT DISTINCT FROM c.name
         AND n.name_en IS NOT DISTINCT FROM c.name_en
-        AND n.name_de IS NOT DISTINCT FROM c.name_de
         AND n.ref IS NOT DISTINCT FROM c.ref
         AND n.highway IS NOT DISTINCT FROM c.highway
         AND n.construction IS NOT DISTINCT FROM c.construction
@@ -537,7 +520,6 @@ BEGIN
             coalesce(n.name, n.ref) = c.name_ref
             AND n.name IS NOT DISTINCT FROM c.name
             AND n.name_en IS NOT DISTINCT FROM c.name_en
-            AND n.name_de IS NOT DISTINCT FROM c.name_de
             AND n.ref IS NOT DISTINCT FROM c.ref
             AND n.highway IS NOT DISTINCT FROM c.highway
             AND n.construction IS NOT DISTINCT FROM c.construction
@@ -551,7 +533,6 @@ BEGIN
         coalesce(n.name, n.ref) = c.name_ref
         AND n.name IS NOT DISTINCT FROM c.name
         AND n.name_en IS NOT DISTINCT FROM c.name_en
-        AND n.name_de IS NOT DISTINCT FROM c.name_de
         AND n.ref IS NOT DISTINCT FROM c.ref
         AND n.highway IS NOT DISTINCT FROM c.highway
         AND n.construction IS NOT DISTINCT FROM c.construction
@@ -565,7 +546,6 @@ BEGIN
             coalesce(n.name, n.ref) = c.name_ref
             AND n.name IS NOT DISTINCT FROM c.name
             AND n.name_en IS NOT DISTINCT FROM c.name_en
-            AND n.name_de IS NOT DISTINCT FROM c.name_de
             AND n.ref IS NOT DISTINCT FROM c.ref
             AND n.highway IS NOT DISTINCT FROM c.highway
             AND n.construction IS NOT DISTINCT FROM c.construction
@@ -579,7 +559,6 @@ BEGIN
         coalesce(n.name, n.ref) = c.name_ref
         AND n.name IS NOT DISTINCT FROM c.name
         AND n.name_en IS NOT DISTINCT FROM c.name_en
-        AND n.name_de IS NOT DISTINCT FROM c.name_de
         AND n.ref IS NOT DISTINCT FROM c.ref
         AND n.highway IS NOT DISTINCT FROM c.highway
         AND n.construction IS NOT DISTINCT FROM c.construction
@@ -593,7 +572,6 @@ BEGIN
             coalesce(n.name, n.ref) = c.name_ref
             AND n.name IS NOT DISTINCT FROM c.name
             AND n.name_en IS NOT DISTINCT FROM c.name_en
-            AND n.name_de IS NOT DISTINCT FROM c.name_de
             AND n.ref IS NOT DISTINCT FROM c.ref
             AND n.highway IS NOT DISTINCT FROM c.highway
             AND n.construction IS NOT DISTINCT FROM c.construction
@@ -607,7 +585,6 @@ BEGIN
         coalesce(n.name, n.ref) = c.name_ref
         AND n.name IS NOT DISTINCT FROM c.name
         AND n.name_en IS NOT DISTINCT FROM c.name_en
-        AND n.name_de IS NOT DISTINCT FROM c.name_de
         AND n.ref IS NOT DISTINCT FROM c.ref
         AND n.highway IS NOT DISTINCT FROM c.highway
         AND n.construction IS NOT DISTINCT FROM c.construction
@@ -621,7 +598,6 @@ BEGIN
             coalesce(n.name, n.ref) = c.name_ref
             AND n.name IS NOT DISTINCT FROM c.name
             AND n.name_en IS NOT DISTINCT FROM c.name_en
-            AND n.name_de IS NOT DISTINCT FROM c.name_de
             AND n.ref IS NOT DISTINCT FROM c.ref
             AND n.highway IS NOT DISTINCT FROM c.highway
             AND n.construction IS NOT DISTINCT FROM c.construction

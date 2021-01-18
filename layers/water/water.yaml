@@ -30,7 +30,7 @@ layer:
       values:
         - bridge
         - tunnel
-  buffer_size: 4
+  buffer_size: 12
   datasource:
     query: (SELECT geometry, class, intermittent, brunnel FROM layer_water(!bbox!, z(!scale_denominator!))) AS t
 schema:
