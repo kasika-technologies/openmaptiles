@@ -1,4 +1,3 @@
-
 # imposm3 mapping file for https://github.com/osm2vectortiles/imposm3
 # Warning: this is not the official imposm3
 
@@ -24,7 +23,6 @@ def_poi_mapping_amenity: &poi_mapping_amenity
   - courthouse
   - dentist
   - doctors
-  - drinking_water
   - embassy
   - fast_food
   - ferry_terminal
@@ -141,7 +139,6 @@ def_poi_mapping_shop: &poi_mapping_shop
   - camera
   - car
   - car_repair
-  - car_parts
   - carpet
   - charity
   - chemist
@@ -380,11 +377,11 @@ tables:
   # etldoc: imposm3 -> osm_poi_point
   poi_point:
     type: point
-    columns: *poi_fields
+    fields: *poi_fields
     mapping: *poi_mapping
 
   # etldoc: imposm3 -> osm_poi_polygon
   poi_polygon:
     type: polygon
-    columns: *poi_fields
+    fields: *poi_fields
     mapping: *poi_mapping
