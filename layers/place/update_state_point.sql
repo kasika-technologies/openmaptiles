@@ -14,47 +14,48 @@ CREATE TABLE IF NOT EXISTS place_state.osm_ids
 
 CREATE OR REPLACE FUNCTION update_osm_state_point(full_update boolean) RETURNS void AS
 $$
-    WITH important_state_point AS (
-        SELECT osm.geometry,
-               osm.osm_id,
-               osm.name,
-               COALESCE(NULLIF(osm.name_en, ''), ne.name) AS name_en,
-               ne.scalerank,
-               ne.labelrank,
-               ne.datarank
-        FROM ne_10m_admin_1_states_provinces AS ne,
-             osm_state_point AS osm
-        WHERE
-          -- We only match whether the point is within the Natural Earth polygon
-          -- because name matching is difficult
-            ST_Within(osm.geometry, ne.geometry)
-          -- We leave out leess important states
-          AND ne.scalerank <= 3
-          AND ne.labelrank <= 2
-    )
-    UPDATE osm_state_point AS osm
-        -- Normalize both scalerank and labelrank into a ranking system from 1 to 6.
-    SET "rank" = LEAST(6, CEILING((scalerank + labelrank + datarank) / 3.0))
-    FROM important_state_point AS ne
-    WHERE (full_update OR osm.osm_id IN (SELECT osm_id FROM place_state.osm_ids))
-      AND rank IS NULL
-      AND osm.osm_id = ne.osm_id;
+WITH important_state_point AS (
+    SELECT osm.geometry,
+           osm.osm_id,
+           osm.name,
+           COALESCE(NULLIF(osm.name_en, ''), ne.name) AS name_en,
+           ne.scalerank,
+           ne.labelrank,
+           ne.datarank
+    FROM ne_10m_admin_1_states_provinces AS ne,
+         osm_state_point AS osm
+    WHERE
+      -- We only match whether the point is within the Natural Earth polygon
+      -- because name matching is difficult
+        ST_Within(osm.geometry, ne.geometry)
+      -- We leave out leess important states
+      AND ne.scalerank <= 3
+      AND ne.labelrank <= 2
+)
+UPDATE osm_state_point AS osm
+    -- Normalize both scalerank and labelrank into a ranking system from 1 to 6.
+SET "rank" = LEAST(6, CEILING((scalerank + labelrank + datarank) / 3.0))
+FROM important_state_point AS ne
+WHERE (full_update OR osm.osm_id IN (SELECT osm_id FROM place_state.osm_ids))
+  AND rank IS NULL
+  AND osm.osm_id = ne.osm_id;
 
     -- TODO: This shouldn't be necessary? The rank function makes something wrong...
-    UPDATE osm_state_point AS osm
-    SET "rank" = 1
-    WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
-      AND "rank" = 0;
+UPDATE osm_state_point AS osm
+SET "rank" = 1
+WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
+  AND "rank" = 0;
 
-    DELETE FROM osm_state_point
-    WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
-      AND "rank" IS NULL;
+DELETE
+FROM osm_state_point
+WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
+  AND "rank" IS NULL;
 
-    UPDATE osm_state_point
-    SET tags = update_tags(tags, geometry)
-    WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
-      AND COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL
-      AND tags != update_tags(tags, geometry);
+UPDATE osm_state_point
+SET tags = update_tags(tags, geometry)
+WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_state.osm_ids))
+  AND COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL
+  AND tags != update_tags(tags, geometry);
 
 $$ LANGUAGE SQL;
 
@@ -79,7 +80,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS place_state.updates
 (
     id serial PRIMARY KEY,
-    t text,
+    t  text,
     UNIQUE (t)
 );
 CREATE OR REPLACE FUNCTION place_state.flag() RETURNS trigger AS

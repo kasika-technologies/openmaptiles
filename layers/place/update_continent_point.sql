@@ -12,11 +12,11 @@ CREATE TABLE IF NOT EXISTS place_continent_point.osm_ids
 -- etldoc:  osm_continent_point ->  osm_continent_point
 CREATE OR REPLACE FUNCTION update_osm_continent_point(full_update boolean) RETURNS void AS
 $$
-    UPDATE osm_continent_point
-    SET tags = update_tags(tags, geometry)
-    WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_continent_point.osm_ids))
-      AND COALESCE(tags->'name:latin', tags->'name:nonlatin', tags->'name_int') IS NULL
-      AND tags != update_tags(tags, geometry);
+UPDATE osm_continent_point
+SET tags = update_tags(tags, geometry)
+WHERE (full_update OR osm_id IN (SELECT osm_id FROM place_continent_point.osm_ids))
+  AND COALESCE(tags -> 'name:latin', tags -> 'name:nonlatin', tags -> 'name_int') IS NULL
+  AND tags != update_tags(tags, geometry);
 $$ LANGUAGE SQL;
 
 SELECT update_osm_continent_point(true);
@@ -38,7 +38,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS place_continent_point.updates
 (
     id serial PRIMARY KEY,
-    t text,
+    t  text,
     UNIQUE (t)
 );
 CREATE OR REPLACE FUNCTION place_continent_point.flag() RETURNS trigger AS
